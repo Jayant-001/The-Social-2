@@ -37,7 +37,7 @@ class _FilterChipDisplayState extends State<FilterChipDisplay> {
               ),
             ),
             //
-            
+
             //languages list
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
@@ -212,6 +212,7 @@ class _FilterChipDisplayState extends State<FilterChipDisplay> {
                   )),
             ),
             //
+
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
