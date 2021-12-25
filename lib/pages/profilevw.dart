@@ -4,15 +4,39 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
-class pfview extends StatefulWidget {
-  pfview({Key? key, this.name, this.mail}) : super(key: key);
-  final name;
-  final mail;
+import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:the_social/model/user_model_reg.dart';
+
+class profilevw extends StatefulWidget {
+  profilevw({Key? key}) : super(key: key);
   @override
-  _pfviewState createState() => _pfviewState();
+  _profilevwState createState() => _profilevwState();
 }
 
-class _pfviewState extends State<pfview> {
+class _profilevwState extends State<profilevw> {
+  final _fAuth = FirebaseAuth.instance;
+
+  User? user = FirebaseAuth.instance.currentUser;
+
+  UserModelReg currUser = UserModelReg();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.uid)
+        .get()
+        .then((value) {
+      this.currUser = UserModelReg.fromMap(value.data());
+      setState(() {});
+    });
+  }
+
   File? image;
   Future getimg(ImageSource source) async {
     try {
@@ -51,29 +75,22 @@ class _pfviewState extends State<pfview> {
     // giving address of image
     //final img = AssetImage("assets/images/dp.jfif"); // NetworkImage("url")
     return Scaffold(
-        backgroundColor: Colors.amber[50],
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.blue),
-            onPressed: () {
-              // go back to previous page
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
+        backgroundColor: Colors.black.withOpacity(0.12),
         body: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.max,
               //physics: BouncingScrollPhysics(),
               children: [
+                SizedBox(
+                  height: 10,
+                ),
                 Card(
+                  color: Colors.white,
                   child: Column(children: [
                     Center(
                       child: Stack(
                         children: [
                           Container(
-                            color: Colors.white,
+                            // color: Colors.white,
                             height: 150,
                             width: 400,
                           ),
@@ -179,7 +196,7 @@ class _pfviewState extends State<pfview> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(children: [
-                        Text(widget.name,
+                        Text(currUser.name.toString(),
                             style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -199,6 +216,7 @@ class _pfviewState extends State<pfview> {
 
                 //Card for personal info
                 Card(
+                  color: Colors.white,
                   child: Container(
                     alignment: Alignment.topLeft,
                     child: Column(children: [
@@ -212,7 +230,7 @@ class _pfviewState extends State<pfview> {
                       ),
                       ListTile(
                           title: Text(
-                            widget.name,
+                            currUser.name.toString(),
                             style: TextStyle(fontSize: 16),
                           ),
                           leading: Icon(
@@ -230,7 +248,7 @@ class _pfviewState extends State<pfview> {
                           )),
                       ListTile(
                           title: Text(
-                            widget.mail,
+                            currUser.email.toString(),
                             style: TextStyle(fontSize: 16),
                           ),
                           leading: Icon(
@@ -263,6 +281,7 @@ class _pfviewState extends State<pfview> {
                 ),
                 //Card for education
                 Card(
+                    color: Colors.white,
                     child: Container(
                         alignment: Alignment.topLeft,
                         child: Column(children: [
@@ -302,11 +321,11 @@ class _pfviewState extends State<pfview> {
                   height: 20,
                 ),
                 Card(
+                  color: Colors.white,
                   child: Column(
                     children: [
                       Container(
                         alignment: Alignment.topLeft,
-                        color: Colors.white,
                         child: Text(
                           "Interest :-",
                           style: TextStyle(
@@ -336,11 +355,11 @@ class _pfviewState extends State<pfview> {
                   height: 20,
                 ),
                 Card(
+                  color: Colors.white,
                   child: Column(
                     children: [
                       Container(
                         alignment: Alignment.topLeft,
-                        color: Colors.white,
                         child: Text(
                           "Hobbies :-",
                           style: TextStyle(
