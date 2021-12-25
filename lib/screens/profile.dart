@@ -409,7 +409,10 @@ class _ImageScreenState extends State<ImageScreen> {
                     BoxDecoration(borderRadius: BorderRadius.circular(20)),
                 child: widget.imgurl != null
                     ? Image.file(widget.imgurl!, fit: BoxFit.cover)
-                    : Image.asset("assets/images/dp.jfif",fit: BoxFit.fill,),
+                    : Image.asset(
+                        "assets/images/dp.jfif",
+                        fit: BoxFit.fill,
+                      ),
               )),
         ),
       ),

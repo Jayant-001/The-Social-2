@@ -102,9 +102,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
 
+
+
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        items:[
+        items: [
           BottomNavigationBarItem(
             backgroundColor: Colors.white,
             icon: Icon(
@@ -144,13 +147,17 @@ class _HomeScreenState extends State<HomeScreen> {
             _currentIndex = index;
             if (index == 0) {
               // ignore: void_checks
-              Navigator.push(context,
-                  MaterialPageRoute(
-                  builder: (context) => pfview(name:currUser.name,mail: currUser.email,)
-                ),
-              );}
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => pfview(
+                          name: currUser.name,
+                          mail: currUser.email,
+                        )),
+              );
             }
-            );},
+          });
+        },
       ),
     );
   }
