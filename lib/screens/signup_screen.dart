@@ -8,7 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:the_social/model/user_model_reg.dart';
 import 'package:the_social/screens/home_screeen.dart';
 import 'package:the_social/screens/login_screen.dart';
-
+import 'dart:io';
 class SignUp extends StatefulWidget {
   SignUp({Key? key}) : super(key: key);
 
@@ -30,7 +30,6 @@ class _SignUpState extends State<SignUp> {
       new TextEditingController();
   final TextEditingController confPasswordControllerSignup =
       new TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     // Name field
