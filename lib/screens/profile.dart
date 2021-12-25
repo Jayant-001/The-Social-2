@@ -1,27 +1,55 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class pfview extends StatefulWidget {
-  // const pfview({Key? key}) : super(key: key);
+  pfview({Key? key, this.name, this.mail}) : super(key: key);
+  final name;
+  final mail;
   @override
   _pfviewState createState() => _pfviewState();
 }
 
 class _pfviewState extends State<pfview> {
+  File? image;
+  Future getimg(ImageSource source) async {
+    try {
+      final image = (await ImagePicker().pickImage(source: source));
+      if (image == null) return;
+
+      final imagetemp = File(image.path);
+      setState(() {
+        this.image = imagetemp;
+        print("image captured");
+      });
+    } on PlatformException catch (e) {
+      // TODO
+      print("Permission denied");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     //fetching details
-    String name = "Prashant Pal";
+    // String name = "Prashant Pal";
+
     String college = "KIET GROUP OF INSTITUITION";
     String school = "KENDRIYA VIDYALAYA RRC FATEHGARH";
     List hobbie = ['hbb1', 'hbb2', 'hbb3', 'hbb4', 'hbb5'];
-    List interest = ['interest1', 'interest2', 'interest3','interest4','interest5'];
-    final imageop = "assets/images/dp.jpg"; // url address to open image
+    List interest = [
+      'interest1',
+      'interest2',
+      'interest3',
+      'interest4',
+      'interest5'
+    ];
+    // final imageop = "assets/images/dp.jfif"; // url address to open image
     final image2 = AssetImage("assets/images/clglogo.png");
     final image3 = AssetImage("assets/images/schlogo.png");
     // giving address of image
-    final image = AssetImage("assets/images/dp.jpg"); // NetworkImage("url")
+    //final img = AssetImage("assets/images/dp.jfif"); // NetworkImage("url")
     return Scaffold(
         backgroundColor: Colors.amber[50],
         appBar: AppBar(
@@ -31,7 +59,7 @@ class _pfviewState extends State<pfview> {
             icon: Icon(Icons.arrow_back, color: Colors.blue),
             onPressed: () {
               // go back to previous page
-              // Navigator.of(context).pop();
+              Navigator.of(context).pop();
             },
           ),
         ),
@@ -61,18 +89,29 @@ class _pfviewState extends State<pfview> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => ImageScreen(
-                                        imgurl: imageop,
+                                        imgurl: image,
                                       ),
                                     ),
                                   );
                                 },
                                 child: Material(
-                                    child: Ink.image(
-                                  image: image,
-                                  height: 128,
-                                  width: 128,
-                                  fit: BoxFit.cover,
-                                )),
+                                  child: Column(children: <Widget>[
+                                    image != null
+                                        ? Image.file(
+                                            image!,
+                                            height: 128,
+                                            width: 128,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Ink.image(
+                                            image: AssetImage(
+                                                "assets/images/dp.jfif"),
+                                            height: 128,
+                                            width: 128,
+                                            fit: BoxFit.cover,
+                                          )
+                                  ]),
+                                ), //Profile image
                               ),
                             ),
                           ),
@@ -88,15 +127,48 @@ class _pfviewState extends State<pfview> {
                                         padding: EdgeInsets.all(8),
                                         color: Colors.blue,
                                         child: GestureDetector(
-                                          //here give functionality to edit image
-                                          onTap: () {
-                                            print("Profile picture edit");
-                                          },
                                           child: Icon(
                                             Icons.edit,
                                             size: 24,
                                             color: Colors.white,
                                           ),
+                                          //here give functionality to edit image
+                                          onTap: () {
+                                            print("Edit Image");
+                                            showModalBottomSheet(
+                                              context: context,
+                                              builder: (context) => Container(
+                                                color: Colors.white,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    ListTile(
+                                                      leading: Icon(
+                                                          Icons.camera_alt),
+                                                      title: Text(
+                                                          "Take From Camera "),
+                                                      onTap: () {
+                                                        getimg(
+                                                            ImageSource.camera);
+                                                      },
+                                                    ),
+                                                    ListTile(
+                                                      leading: Icon(Icons
+                                                          .now_wallpaper_outlined),
+                                                      title: Text(
+                                                          "Chosse from gallery"),
+                                                      onTap: () {
+                                                        getimg(ImageSource
+                                                            .gallery);
+                                                      },
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          // print("Profile picture edit");
                                         )),
                                   ),
                                 ),
@@ -107,7 +179,7 @@ class _pfviewState extends State<pfview> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(children: [
-                        Text("$name",
+                        Text(widget.name,
                             style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -140,7 +212,7 @@ class _pfviewState extends State<pfview> {
                       ),
                       ListTile(
                           title: Text(
-                            "$name",
+                            widget.name,
                             style: TextStyle(fontSize: 16),
                           ),
                           leading: Icon(
@@ -158,7 +230,7 @@ class _pfviewState extends State<pfview> {
                           )),
                       ListTile(
                           title: Text(
-                            "user@gmail.com",
+                            widget.mail,
                             style: TextStyle(fontSize: 16),
                           ),
                           leading: Icon(
@@ -260,7 +332,9 @@ class _pfviewState extends State<pfview> {
                     ],
                   ),
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 Card(
                   child: Column(
                     children: [
@@ -297,9 +371,13 @@ class _pfviewState extends State<pfview> {
   }
 }
 
+class _picker {
+  static pickImage({required ImageSource source}) {}
+}
+
 class ImageScreen extends StatefulWidget {
-  const ImageScreen({Key? key, this.imgurl}) : super(key: key);
-  final imgurl;
+  ImageScreen({Key? key, this.imgurl}) : super(key: key);
+  File? imgurl;
   @override
   _ImageScreenState createState() => _ImageScreenState();
 }
@@ -329,10 +407,9 @@ class _ImageScreenState extends State<ImageScreen> {
               child: DecoratedBox(
                 decoration:
                     BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                child: Image.asset(
-                  widget.imgurl,
-                  fit: BoxFit.cover,
-                ),
+                child: widget.imgurl != null
+                    ? Image.file(widget.imgurl!, fit: BoxFit.cover)
+                    : Image.asset("assets/images/dp.jfif",fit: BoxFit.fill,),
               )),
         ),
       ),

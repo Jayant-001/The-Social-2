@@ -25,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
   // firebase
   final _auth = FirebaseAuth.instance;
 
-
   //  @override
   // void initState() {
   //   super.initState();
@@ -46,7 +45,6 @@ class _LoginScreenState extends State<LoginScreen> {
   //   }
 
   // }
-
 
   @override
   Widget build(BuildContext context) {
@@ -201,16 +199,15 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-
 // loginFunction
   void signIn(String email, String password) async {
     if (_formKey.currentState!.validate()) {
-        await _auth
+      await _auth
           .signInWithEmailAndPassword(email: email, password: password)
           .then((uid) => {
                 Fluttertoast.showToast(msg: "Login Successfully"),
                 Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => FilterChipDisplay())),
+                    MaterialPageRoute(builder: (context) => HomeScreen())), //
               })
           .catchError((e) {
         Fluttertoast.showToast(msg: e.toString());
