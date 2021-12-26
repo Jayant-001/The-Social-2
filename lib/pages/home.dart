@@ -15,7 +15,6 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-
   final _fAuth = FirebaseAuth.instance;
 
   User? user = FirebaseAuth.instance.currentUser;
@@ -35,11 +34,12 @@ class _homeState extends State<home> {
       setState(() {});
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView (
+      backgroundColor: Colors.white10,
+      body: SingleChildScrollView(
         child: Center(
             child: Padding(
           padding: EdgeInsets.all(20),
@@ -59,8 +59,12 @@ class _homeState extends State<home> {
                 SizedBox(
                   height: 20,
                 ),
-                Text("Name : "+currUser.name.toString() ),
-                Text("Email : "+currUser.email.toString()),  
+                Text(
+                  "Name : " + currUser.name.toString(),
+                  style: TextStyle(fontSize: 20),
+                ),
+                Text("Email : " + currUser.email.toString(),
+                    style: TextStyle(fontSize: 20)),
                 SizedBox(
                   height: 20,
                 ),
@@ -78,7 +82,7 @@ class _homeState extends State<home> {
                     //     .catchError((e) {
                     //   Fluttertoast.showToast(msg: e.toString());
                     // });
-      
+
                     // --------------
                     logout(context);
                   },
@@ -96,4 +100,3 @@ class _homeState extends State<home> {
         MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 }
-
