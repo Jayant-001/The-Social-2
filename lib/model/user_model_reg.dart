@@ -5,8 +5,9 @@ class UserModelReg {
   String? email;
   String? name;
   String? password;
+  // String? clg;
 
-  UserModelReg({this.uid, this.email, this.name, this.password});
+  UserModelReg({this.uid, this.email, this.name, this.password}); //this.clg
 
   // reveive data from server
   factory UserModelReg.fromMap(map) {
@@ -14,9 +15,11 @@ class UserModelReg {
         uid: map['uid'],
         email: map['email'],
         name: map['name'],
-        password: map['password']);
+        password: map['password']
+        // clg: map['clg']
+        );
   }
-  
+
   // send data to server
   Map<String, dynamic> toMap() {
     return {
@@ -24,6 +27,7 @@ class UserModelReg {
       'email': email,
       'name': name,
       'password': password,
+      // 'clg' :clg
     };
   }
 }
