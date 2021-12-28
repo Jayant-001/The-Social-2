@@ -18,7 +18,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: FirebaseAuth.instance.currentUser == null ? LoginScreen() : HomeScreen(),
+      home: FirebaseAuth.instance.currentUser == null
+          ? LoginScreen()
+          : HomeScreen(),
       debugShowCheckedModeBanner: true,
       theme: ThemeData(
         canvasColor: Colors.transparent,
