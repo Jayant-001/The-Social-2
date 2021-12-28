@@ -11,7 +11,7 @@ import 'package:the_social/screens/login_screen.dart';
 
 import 'package:the_social/pages/home.dart';
 import 'package:the_social/pages/message.dart';
-import 'package:the_social/pages/demo.dart';
+import 'package:the_social/pages/profilevw.dart';
 import 'package:the_social/pages/search.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,7 +24,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final screens = [home(), search(), message(), demovw()];
+  final screens = [home(), search(), message(), profilevw()];
 
   final _fAuth = FirebaseAuth.instance;
 

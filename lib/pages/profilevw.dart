@@ -2,13 +2,18 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';
 
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:the_social/model/user_model_reg.dart';
+
+//______________image upload________________
+import 'package:path/path.dart';
+import 'package:image_picker/image_picker.dart';
+//import 'package:permission_handler/permission_handler.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class profilevw extends StatefulWidget {
   profilevw({Key? key}) : super(key: key);
@@ -17,6 +22,9 @@ class profilevw extends StatefulWidget {
 }
 
 class _profilevwState extends State<profilevw> {
+  UploadTask? task;
+  String currenturl = "null";
+  int t = 0;
   final _fAuth = FirebaseAuth.instance;
 
   User? user = FirebaseAuth.instance.currentUser;
@@ -33,7 +41,12 @@ class _profilevwState extends State<profilevw> {
         .get()
         .then((value) {
       this.currUser = UserModelReg.fromMap(value.data());
-      setState(() {});
+      setState(() {
+        currenturl = currUser.dpurl.toString();
+        if (currenturl == "null")
+          currenturl =
+              "https://firebasestorage.googleapis.com/v0/b/the-social-5ba4c.appspot.com/o/dp.jfif?alt=media&token=e2189c61-9022-4614-939c-6d43fadc2175";
+      });
     });
   }
 
@@ -46,12 +59,53 @@ class _profilevwState extends State<profilevw> {
       final imagetemp = File(image.path);
       setState(() {
         this.image = imagetemp;
+        t = 1;
         print("image captured");
       });
     } on PlatformException catch (e) {
       // TODO
       print("Permission denied");
     }
+  }
+
+  Future uploadfile() async {
+    if (image == null) return;
+    final filename = basename(image!.path);
+    final dest = 'images/$filename';
+    FirebaseApi.uploadfile(dest, image!);
+    task = FirebaseApi.uploadfile(dest, image!);
+    setState(() {});
+    if (task == null) return;
+    final snapshot = await task!.whenComplete(() {});
+    final urldownload = await snapshot.ref.getDownloadURL();
+    print(urldownload);
+    updatedpurl(urldownload, currUser.name, currUser.email, currUser.password,
+        currUser.uid);
+  }
+
+  Future updatedpurl(updpurl, name, mail, pass, id) async {
+    final _fAuth = FirebaseAuth.instance;
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    UserModelReg currUser = UserModelReg();
+
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
+    currUser.dpurl = updpurl;
+    currUser.name = name;
+    currUser.email = mail;
+    currUser.uid = id;
+    currUser.password = pass;
+
+    await firebaseFirestore
+        .collection("users")
+        .doc(user!.uid)
+        .set(currUser.toMap());
+    setState(() {
+      currenturl = currUser.dpurl.toString();
+      t = 0;
+    });
   }
 
   @override
@@ -105,30 +159,18 @@ class _profilevwState extends State<profilevw> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => ImageScreen(
-                                        imgurl: image,
-                                      ),
+                                      builder: (context) =>
+                                          ImageScreen(urlimg: currenturl),
                                     ),
                                   );
                                 },
                                 child: Material(
-                                  child: Column(children: <Widget>[
-                                    image != null
-                                        ? Image.file(
-                                            image!,
-                                            height: 128,
-                                            width: 128,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : Ink.image(
-                                            image: AssetImage(
-                                                "assets/images/dp.jfif"),
-                                            height: 128,
-                                            width: 128,
-                                            fit: BoxFit.cover,
-                                          )
-                                  ]),
-                                ), //Profile image
+                                    child: Image.network(
+                                  currenturl,
+                                  height: 128, //Profile image
+                                  width: 128,
+                                  fit: BoxFit.cover,
+                                )),
                               ),
                             ),
                           ),
@@ -144,49 +186,47 @@ class _profilevwState extends State<profilevw> {
                                         padding: EdgeInsets.all(8),
                                         color: Colors.blue,
                                         child: GestureDetector(
-                                          child: Icon(
-                                            Icons.edit,
-                                            size: 24,
-                                            color: Colors.white,
-                                          ),
-                                          //here give functionality to edit image
-                                          onTap: () {
-                                            print("Edit Image");
-                                            showModalBottomSheet(
-                                              context: context,
-                                              builder: (context) => Container(
-                                                color: Colors.white,
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    ListTile(
-                                                      leading: Icon(
-                                                          Icons.camera_alt),
-                                                      title: Text(
-                                                          "Take From Camera "),
-                                                      onTap: () {
-                                                        getimg(
-                                                            ImageSource.camera);
-                                                      },
-                                                    ),
-                                                    ListTile(
-                                                      leading: Icon(Icons
-                                                          .now_wallpaper_outlined),
-                                                      title: Text(
-                                                          "Chosse from gallery"),
-                                                      onTap: () {
-                                                        getimg(ImageSource
-                                                            .gallery);
-                                                      },
-                                                    )
-                                                  ],
+                                            child: Icon(
+                                              Icons.edit,
+                                              size: 24,
+                                              color: Colors.white,
+                                            ),
+                                            //here give functionality to edit image
+                                            onTap: () {
+                                              print("Edit Image");
+                                              showModalBottomSheet(
+                                                context: context,
+                                                builder: (context) => Container(
+                                                  color: Colors.white,
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      ListTile(
+                                                        leading: Icon(
+                                                            Icons.camera_alt),
+                                                        title: Text(
+                                                            "Take From Camera "),
+                                                        onTap: () {
+                                                          getimg(ImageSource
+                                                              .camera);
+                                                        },
+                                                      ),
+                                                      ListTile(
+                                                        leading: Icon(Icons
+                                                            .now_wallpaper_outlined),
+                                                        title: Text(
+                                                            "Chosse from gallery"),
+                                                        onTap: () {
+                                                          getimg(ImageSource
+                                                              .gallery);
+                                                        },
+                                                      )
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                            );
-                                          },
-                                          // print("Profile picture edit");
-                                        )),
+                                              );
+                                            })),
                                   ),
                                 ),
                               )),
@@ -205,7 +245,13 @@ class _profilevwState extends State<profilevw> {
                             style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black.withOpacity(0.7)))
+                                color: Colors.black.withOpacity(0.7))),
+                        if (t != 0)
+                          ButtonWidget(
+                            text: 'Upload image',
+                            icon: Icons.cloud_upload_outlined,
+                            onclicked: uploadfile,
+                          ),
                       ]),
                     ),
                   ]),
@@ -227,6 +273,16 @@ class _profilevwState extends State<profilevw> {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
                                 fontSize: 20)),
+                          trailing: GestureDetector(
+                              child: Icon(
+                                Icons.mode_edit_rounded,
+                                size: 24,
+                                color: Colors.black,
+                              ),
+                              onTap: () {
+                                print("Edit Personal detail");
+                              },
+                            ),
                       ),
                       ListTile(
                           title: Text(
@@ -292,6 +348,16 @@ class _profilevwState extends State<profilevw> {
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,
                                     fontSize: 20)),
+                            trailing: GestureDetector(
+                              child: Icon(
+                                Icons.mode_edit_rounded,
+                                size: 24,
+                                color: Colors.black,
+                              ),
+                              onTap: () {
+                                print("Edit Education detail");
+                              },
+                            ),
                           ),
                           ListTile(
                               title: Text("$college"),
@@ -390,10 +456,11 @@ class _profilevwState extends State<profilevw> {
   }
 }
 
+//__________________________Image Enlarge Widget_____________________________________________
 
 class ImageScreen extends StatefulWidget {
-  ImageScreen({Key? key, this.imgurl}) : super(key: key);
-  File? imgurl;
+  ImageScreen({Key? key, required this.urlimg}) : super(key: key);
+  String urlimg;
   @override
   _ImageScreenState createState() => _ImageScreenState();
 }
@@ -421,17 +488,63 @@ class _ImageScreenState extends State<ImageScreen> {
               width: 400,
               color: Colors.white,
               child: DecoratedBox(
-                decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                child: widget.imgurl != null
-                    ? Image.file(widget.imgurl!, fit: BoxFit.cover)
-                    : Image.asset(
-                        "assets/images/dp.jfif",
-                        fit: BoxFit.fill,
-                      ),
-              )),
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                  child: Image.network(
+                    widget.urlimg,
+                    fit: BoxFit.fill,
+                  ))),
         ),
       ),
     );
+  }
+}
+
+class ButtonWidget extends StatelessWidget {
+  const ButtonWidget(
+      {Key? key,
+      required this.icon,
+      required this.text,
+      required this.onclicked})
+      : super(key: key);
+  final IconData icon;
+  final String text;
+  final VoidCallback onclicked;
+  @override
+  Widget build(BuildContext context) => ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          primary: Color.fromRGBO(29, 194, 95, 1),
+          minimumSize: Size.fromHeight(50),
+        ),
+        child: buildcontent(),
+        onPressed: onclicked,
+      );
+
+  Widget buildcontent() => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 28,
+          ),
+          SizedBox(
+            width: 16,
+          ),
+          Text(
+            text,
+            style: (TextStyle(fontSize: 22, color: Colors.black)),
+          )
+        ],
+      );
+}
+
+class FirebaseApi {
+  static UploadTask? uploadfile(String dest, File image) {
+    try {
+      final ref = FirebaseStorage.instance.ref(dest);
+      return ref.putFile(image);
+    } on FirebaseException catch (e) {
+      return null;
+    }
   }
 }
