@@ -6,14 +6,13 @@ import 'package:the_social/model/user_model_reg.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
+import 'package:the_social/pages/demo.dart';
 import 'package:the_social/screens/login_screen.dart';
-
 
 import 'package:the_social/pages/home.dart';
 import 'package:the_social/pages/message.dart';
 import 'package:the_social/pages/profilevw.dart';
 import 'package:the_social/pages/search.dart';
-
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -23,10 +22,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   int _currentIndex = 0;
 
-  final screens = [home(), search(), message(),profilevw()];
+  final screens = [home(), search(), message(), profilevw()];
 
   final _fAuth = FirebaseAuth.instance;
 
@@ -56,16 +54,16 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text("Welcome"),
         centerTitle: true,
       ),
-    
-    //____________Body_____________________________________________________________
-    
+
+      //____________Body_____________________________________________________________
+
       body: IndexedStack(
         index: _currentIndex,
         children: screens,
       ),
-    
-    //_______________________________________Bottom Navigation Bar__________________________________________________
-    
+
+      //_______________________________________Bottom Navigation Bar__________________________________________________
+
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
           backgroundColor: Colors.blue,
@@ -111,6 +109,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-
-

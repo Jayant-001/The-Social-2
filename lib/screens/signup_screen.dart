@@ -9,6 +9,7 @@ import 'package:the_social/model/user_model_reg.dart';
 import 'package:the_social/screens/home_screeen.dart';
 import 'package:the_social/screens/login_screen.dart';
 import 'dart:io';
+
 class SignUp extends StatefulWidget {
   SignUp({Key? key}) : super(key: key);
 
@@ -278,6 +279,10 @@ class _SignUpState extends State<SignUp> {
     userModeReg.uid = user.uid;
     userModeReg.name = nameControllerSignup.text;
     userModeReg.password = passwordControllerSignup.text;
+
+    //_______________dp added____________________________________________
+    userModeReg.dpurl =
+        "https://firebasestorage.googleapis.com/v0/b/the-social-5ba4c.appspot.com/o/dp.jfif?alt=media&token=e2189c61-9022-4614-939c-6d43fadc2175";
 
     await firebaseFirestore
         .collection("users")
